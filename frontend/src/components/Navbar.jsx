@@ -73,7 +73,9 @@ export default function Navbar() {
 
         <nav className="hidden md:flex items-center gap-6 text-sm">
           <NavLink to="/" end className={navLinkClass}>Home</NavLink>
-          <NavLink to="/playlists" className={navLinkClass}>Playlists</NavLink>
+          <NavLink to="/albums" className={navLinkClass}>Album</NavLink>
+          <NavLink to="/playlists" className={navLinkClass}>Playlist</NavLink>
+          <NavLink to="/songs" className={navLinkClass}>Songs</NavLink>
           {user ? (
             <div className="flex items-center gap-3 pl-4 border-l border-surface2">
               <label className="w-8 h-8 rounded-full bg-teal/20 text-teal flex items-center justify-center text-xs font-semibold overflow-hidden cursor-pointer" title="Upload profile image">
@@ -112,7 +114,9 @@ export default function Navbar() {
             />
           </form>
           <Link to="/" onClick={() => setMenuOpen(false)} className="text-muted hover:text-ink">Home</Link>
-          <Link to="/playlists" onClick={() => setMenuOpen(false)} className="text-muted hover:text-ink">Playlists</Link>
+          <Link to="/albums" onClick={() => setMenuOpen(false)} className="text-muted hover:text-ink">Album</Link>
+          <Link to="/playlists" onClick={() => setMenuOpen(false)} className="text-muted hover:text-ink">Playlist</Link>
+          <Link to="/songs" onClick={() => setMenuOpen(false)} className="text-muted hover:text-ink">Songs</Link>
           {user ? (
             <div className="flex items-center justify-between pt-3 border-t border-surface2">
               <div className="flex items-center gap-2">

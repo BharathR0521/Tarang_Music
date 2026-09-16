@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { FiX } from "react-icons/fi";
 import api from "../api/axios.js";
 
-// A small popup listing the user's playlists so they can add a song to one.
+// A small popup listing the user's albums so they can add a song to one.
 export default function AddToPlaylistModal({ song, onClose }) {
   const [playlists, setPlaylists] = useState([]);
   const [status, setStatus] = useState("");
@@ -26,7 +26,7 @@ export default function AddToPlaylistModal({ song, onClose }) {
         </div>
 
         {playlists.length === 0 ? (
-          <p className="text-xs text-muted">You don't have any playlists yet. Create one first.</p>
+          <p className="text-xs text-muted">You don't have any movie albums yet. Create one first.</p>
         ) : (
           <ul className="space-y-2 max-h-64 overflow-y-auto">
             {playlists.map((p) => (

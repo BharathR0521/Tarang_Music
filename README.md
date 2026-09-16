@@ -42,15 +42,12 @@ genres you like, and the homepage will personalize itself.
 
 ## What's included
 
-- **Browse & personalized recommendations** — homepage adapts to the genres
   you picked at signup.
-- **Search** — by song title, artist, album, or movie name.
-- **Playlists** — create, rename, delete, add/remove songs.
-- **Streaming player** — play/pause, next/previous, shuffle, repeat, volume,
   seek bar — a persistent bar at the bottom of every page.
-- **Download** — download button on every song card for offline listening.
-- **Likes & comments** — like any song; comment on songs and playlists.
-- **Social sharing** — Facebook, Twitter/X, and Instagram (copy-link) buttons
+- **Albums and playlists** — create, rename, delete, add/remove songs. Deleting an album removes its album record and artwork without deleting the original songs.
+- **Songs library** — upload any number of songs, keep them across restarts, and permanently delete your own uploads with their stored media.
+- **Streaming player** — play/pause, next/previous, shuffle, volume, and seek bar. Only one track plays at a time; playback stops when a song ends.
+- **Personal home** — recently played songs, recently added albums, and recently created playlists are loaded from MongoDB with empty states for new accounts.
   on playlists.
 
 ## Design

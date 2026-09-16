@@ -14,7 +14,6 @@ export const PlayerProvider = ({ children }) => {
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(0.8);
   const [shuffle, setShuffle] = useState(false);
-  const [repeat, setRepeat] = useState(false);   // repeat the current song
 
   const currentSong = currentIndex >= 0 ? queue[currentIndex] : null;
 
@@ -34,19 +33,17 @@ export const PlayerProvider = ({ children }) => {
       audio.removeEventListener("ended", onEnded);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentIndex, queue, repeat, shuffle]);
+  }, [currentIndex, queue, shuffle]);
 
   useEffect(() => {
     audioRef.current.volume = volume;
   }, [volume]);
 
   const handleEnded = () => {
-    if (repeat) {
-      audioRef.current.currentTime = 0;
-      audioRef.current.play();
-      return;
-    }
-    playNext();
+    audioRef.current.pause();
+    audioRef.current.currentTime = 0;
+    setProgress(0);
+    setIsPlaying(false);
   };
 
   // Start playing a song. `songList` is the full list it belongs to
@@ -64,7 +61,9 @@ export const PlayerProvider = ({ children }) => {
     audio.src = song.audioUrl;
     audio.play();
     setIsPlaying(true);
-    api.put(`/songs/${song._id}/play`).catch(() => {}); // silently count the play
+    api.put(`/songs/${song._id}/play`)
+      .then(() => window.dispatchEvent(new CustomEvent("tarang:recent-played")))
+      .catch(() => {}); // silently count the play
   };
 
   const togglePlay = () => {
@@ -113,7 +112,6 @@ export const PlayerProvider = ({ children }) => {
         duration,
         volume,
         shuffle,
-        repeat,
         playSong,
         togglePlay,
         playNext,
@@ -121,7 +119,6 @@ export const PlayerProvider = ({ children }) => {
         seekTo,
         setVolume,
         setShuffle,
-        setRepeat,
       }}
     >
       {children}

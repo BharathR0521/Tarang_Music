@@ -1,4 +1,4 @@
-import { FiPlay, FiPause, FiSkipBack, FiSkipForward, FiShuffle, FiRepeat, FiVolume2 } from "react-icons/fi";
+import { FiPlay, FiPause, FiSkipBack, FiSkipForward, FiShuffle, FiVolume2 } from "react-icons/fi";
 import { usePlayer } from "../context/PlayerContext.jsx";
 
 const formatTime = (secs = 0) => {
@@ -11,7 +11,7 @@ export default function PlayerBar() {
   const {
     currentSong, isPlaying, progress, duration,
     togglePlay, playNext, playPrevious, seekTo,
-    volume, setVolume, shuffle, setShuffle, repeat, setRepeat,
+    volume, setVolume, shuffle, setShuffle,
   } = usePlayer();
 
   if (!currentSong) return null;
@@ -50,13 +50,6 @@ export default function PlayerBar() {
             </button>
             <button onClick={playNext} className="text-ink hover:text-amber" title="Next">
               <FiSkipForward size={18} />
-            </button>
-            <button
-              onClick={() => setRepeat(!repeat)}
-              className={repeat ? "text-amber" : "text-muted hover:text-ink"}
-              title="Repeat"
-            >
-              <FiRepeat size={16} />
             </button>
           </div>
 

@@ -2,18 +2,30 @@ import { useEffect, useState } from "react";
 import { FiPlus, FiX } from "react-icons/fi";
 import api from "../api/axios.js";
 
-export default function AddSongToPlaylistModal({ playlist, onClose, onAdded }) {
+export default function AddSongToPlaylistModal({ playlist, collectionType = "album", onClose, onAdded }) {
   const [songs, setSongs] = useState([]);
+  const [collections, setCollections] = useState([]);
   const [query, setQuery] = useState("");
   const [error, setError] = useState("");
   const [addingId, setAddingId] = useState("");
 
   useEffect(() => {
-    api.get("/songs").then((res) => setSongs(res.data)).catch(() => setError("Could not load songs."));
+    Promise.all([api.get("/songs/mine"), api.get("/playlists/mine")])
+      .then(([songsResponse, collectionsResponse]) => {
+        setSongs(songsResponse.data);
+        setCollections(collectionsResponse.data);
+      })
+      .catch(() => setError("Could not load your uploaded songs."));
   }, []);
 
   const playlistSongIds = new Set(playlist.songs.map((song) => song._id));
+  const otherCollectionSongIds = new Set(
+    collections
+      .filter((collection) => (collection.type || "album") !== collectionType)
+      .flatMap((collection) => collection.songs.map((song) => song._id || song))
+  );
   const filteredSongs = songs.filter((song) =>
+    !otherCollectionSongIds.has(song._id) &&
     `${song.title} ${song.artist}`.toLowerCase().includes(query.toLowerCase())
   );
 
@@ -36,7 +48,7 @@ export default function AddSongToPlaylistModal({ playlist, onClose, onAdded }) {
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-sm font-medium text-ink">Add songs to {playlist.name}</h2>
-            <p className="text-xs text-muted mt-1">Choose songs from the library.</p>
+            <p className="text-xs text-muted mt-1">Choose your uploaded songs for this playlist.</p>
           </div>
           <button onClick={onClose} className="text-muted hover:text-ink" title="Close"><FiX size={18} /></button>
         </div>
@@ -54,13 +66,13 @@ export default function AddSongToPlaylistModal({ playlist, onClose, onAdded }) {
                   <p className="text-sm text-ink truncate">{song.title}</p>
                   <p className="text-xs text-muted truncate">{song.artist}</p>
                 </div>
-                <button disabled={alreadyAdded || addingId === song._id} onClick={() => handleAdd(song)} className="flex items-center gap-1 text-xs text-teal hover:text-ink disabled:text-muted disabled:cursor-not-allowed" title={alreadyAdded ? "Already in playlist" : "Add to playlist"}>
+                <button disabled={alreadyAdded || addingId === song._id} onClick={() => handleAdd(song)} className="flex items-center gap-1 text-xs text-teal hover:text-ink disabled:text-muted disabled:cursor-not-allowed" title={alreadyAdded ? "Already in album" : "Add to album"}>
                   <FiPlus size={15} /> {alreadyAdded ? "Added" : addingId === song._id ? "Adding" : "Add"}
                 </button>
               </div>
             );
           })}
-          {filteredSongs.length === 0 && <p className="text-xs text-muted py-4 text-center">No songs found.</p>}
+          {filteredSongs.length === 0 && <p className="text-xs text-muted py-4 text-center">No uploaded songs found.</p>}
         </div>
       </div>
     </div>

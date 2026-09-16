@@ -15,7 +15,7 @@ import { uploadSong } from "../middleware/uploadSong.js";
 const router = express.Router();
 
 router.get("/mine", protect, getMyPlaylists);
-router.get("/:id", getPlaylistById);
+router.get("/:id", protect, getPlaylistById);
 router.post("/", protect, uploadSong.single("coverImage"), createPlaylist);
 router.put("/:id", protect, uploadSong.single("coverImage"), updatePlaylist);
 router.put("/:id/songs/:songId", protect, addSongToPlaylist);

@@ -9,6 +9,7 @@ export default function Register() {
   const { register } = useAuth();
   const navigate = useNavigate();
   const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [genres, setGenres] = useState([]);
@@ -21,7 +22,7 @@ export default function Register() {
     e.preventDefault();
     setError("");
     try {
-      await register(name, email, password, genres);
+      await register(name, username, email, password, genres);
       navigate("/");
     } catch (err) {
       setError(err.response?.data?.message || "Something went wrong. Try again.");
@@ -40,6 +41,13 @@ export default function Register() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Name"
+            className="bg-surface border border-surface2 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-amber"
+          />
+          <input
+            required
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            placeholder="Username"
             className="bg-surface border border-surface2 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-amber"
           />
           <input

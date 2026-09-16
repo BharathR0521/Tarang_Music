@@ -57,7 +57,7 @@ export default function SongCard({ song, songList, onLike, liked, onAddToPlaylis
           <button
             onClick={(e) => { e.stopPropagation(); onAddToPlaylist(song); }}
             className="text-muted hover:text-teal transition"
-            title="Add to playlist"
+            title="Add to album"
           >
             <FiPlus size={14} />
           </button>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { FiPlay, FiTrash2, FiMusic, FiPlus } from "react-icons/fi";
 import api from "../api/axios.js";
 import { useAuth } from "../context/AuthContext.jsx";
@@ -12,6 +12,7 @@ import ImagePreview from "../components/ImagePreview.jsx";
 export default function PlaylistDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
   const { playSong } = usePlayer();
   const [playlist, setPlaylist] = useState(null);
@@ -19,20 +20,18 @@ export default function PlaylistDetail() {
   const [coverError, setCoverError] = useState("");
   const [uploadingCover, setUploadingCover] = useState(false);
   const [showCover, setShowCover] = useState(false);
+  const isPlaylistRoute = location.pathname.startsWith("/playlists/");
 
   const load = () => api.get(`/playlists/${id}`).then((res) => setPlaylist(res.data));
 
-  useEffect(() => { load(); }, [id]);
+  useEffect(() => {
+    load().then(() => {
+      if (new URLSearchParams(location.search).get("addSongs") === "true") setShowAddSongs(true);
+    });
+  }, [id, location.search]);
 
   const handleRemove = async (songId) => {
-    const song = playlist.songs.find((item) => item._id === songId);
-    const isUploadedByUser = song?.uploadedBy?.toString() === user?._id;
-    if (isUploadedByUser) {
-      if (!window.confirm(`Delete "${song.title}" permanently?`)) return;
-      await api.delete(`/songs/${songId}`);
-    } else {
-      await api.delete(`/playlists/${id}/songs/${songId}`);
-    }
+    await api.delete(`/playlists/${id}/songs/${songId}`);
     load();
   };
 
@@ -47,7 +46,7 @@ export default function PlaylistDetail() {
       const response = await api.put(`/playlists/${id}`, formData);
       setPlaylist((current) => ({ ...current, coverImage: response.data.coverImage }));
     } catch (error) {
-      setCoverError(error.response?.data?.message || "Could not update playlist image.");
+      setCoverError(error.response?.data?.message || "Could not update album image.");
     } finally {
       setUploadingCover(false);
       event.target.value = "";
@@ -55,9 +54,9 @@ export default function PlaylistDetail() {
   };
 
   const handleDeletePlaylist = async () => {
-    if (!window.confirm(`Delete playlist "${playlist.name}" permanently?`)) return;
+    if (!window.confirm(`Delete ${isPlaylistRoute ? "playlist" : "movie album"} "${playlist.name}" permanently?`)) return;
     await api.delete(`/playlists/${id}`);
-    navigate("/playlists");
+    navigate(isPlaylistRoute ? "/playlists" : "/albums");
   };
 
   if (!playlist) return <div className="max-w-6xl mx-auto px-5 pt-10 text-muted">Loading...</div>;
@@ -78,7 +77,7 @@ export default function PlaylistDetail() {
           {isOwner && <label className="absolute inset-x-0 bottom-0 bg-black/70 text-center text-xs text-ink py-2 cursor-pointer">{uploadingCover ? "Uploading..." : "Change image"}<input type="file" accept="image/*" onChange={handleCoverUpload} className="hidden" /></label>}
         </div>
         <div className="flex flex-col justify-end">
-          <p className="text-xs text-muted uppercase tracking-wide">Playlist</p>
+          <p className="text-xs text-muted uppercase tracking-wide">{isPlaylistRoute ? "Playlist" : "Movie album"}</p>
           <h1 className="text-3xl font-semibold text-ink mt-1">{playlist.name}</h1>
           {playlist.description && <p className="text-sm text-muted mt-2">{playlist.description}</p>}
           <p className="text-xs text-muted mt-2">
@@ -88,7 +87,7 @@ export default function PlaylistDetail() {
             <div className="flex flex-wrap items-center gap-3">
               <ShareButtons title={playlist.name} />
               {isOwner && <button onClick={() => setShowAddSongs(true)} className="inline-flex items-center gap-2 bg-teal text-base text-sm font-medium rounded-full px-4 py-2 hover:brightness-110"><FiPlus size={15} /> Add songs</button>}
-              {isOwner && <button onClick={handleDeletePlaylist} className="inline-flex items-center gap-2 border border-red-400/40 text-red-300 text-sm font-medium rounded-full px-4 py-2 hover:bg-red-400/10" title="Delete playlist"><FiTrash2 size={15} /> Delete playlist</button>}
+              {isOwner && <button onClick={handleDeletePlaylist} className="inline-flex items-center gap-2 border border-red-400/40 text-red-300 text-sm font-medium rounded-full px-4 py-2 hover:bg-red-400/10" title={`Delete ${isPlaylistRoute ? "playlist" : "movie album"}`}><FiTrash2 size={15} /> Delete {isPlaylistRoute ? "playlist" : "album"}</button>}
             </div>
           </div>
           {coverError && <p className="text-xs text-red-400 mt-2">{coverError}</p>}
@@ -126,7 +125,7 @@ export default function PlaylistDetail() {
       )}
 
       <CommentSection playlistId={playlist._id} />
-      {showAddSongs && <AddSongToPlaylistModal playlist={playlist} onClose={() => setShowAddSongs(false)} onAdded={() => { setShowAddSongs(false); load(); }} />}
+      {showAddSongs && <AddSongToPlaylistModal playlist={playlist} collectionType={isPlaylistRoute ? "playlist" : "album"} onClose={() => setShowAddSongs(false)} onAdded={() => { setShowAddSongs(false); load(); }} />}
       {showCover && <ImagePreview src={playlist.coverImage} alt={`${playlist.name} cover`} onClose={() => setShowCover(false)} />}
     </div>
   );

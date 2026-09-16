@@ -7,7 +7,9 @@ import User from "../models/User.js";
 // GET /api/playlists/mine -> all playlists belonging to the logged-in user
 export const getMyPlaylists = async (req, res) => {
   try {
-    const playlists = await Playlist.find({ owner: req.user._id }).populate("songs");
+    const filter = { owner: req.user._id };
+    if (req.query.type === "album" || req.query.type === "playlist") filter.type = req.query.type;
+    const playlists = await Playlist.find(filter).sort({ createdAt: -1 }).populate("songs");
     res.json(playlists);
   } catch (error) {
     res.status(500).json({ message: "Could not load playlists.", error: error.message });
@@ -17,8 +19,11 @@ export const getMyPlaylists = async (req, res) => {
 // GET /api/playlists/:id -> one playlist, with its full song list
 export const getPlaylistById = async (req, res) => {
   try {
-    const playlist = await Playlist.findById(req.params.id).populate("songs").populate("owner", "name");
-    if (!playlist) return res.status(404).json({ message: "Playlist not found." });
+    const playlist = await Playlist.findOne({ _id: req.params.id, owner: req.user._id })
+      .populate("songs")
+      .populate("owner", "name");
+
+    if (!playlist) return res.status(404).json({ message: "Playlist not found for this account." });
     res.json(playlist);
   } catch (error) {
     res.status(500).json({ message: "Could not load playlist.", error: error.message });
@@ -28,13 +33,14 @@ export const getPlaylistById = async (req, res) => {
 // POST /api/playlists -> create a new, empty (or pre-filled) playlist
 export const createPlaylist = async (req, res) => {
   try {
-    const { name, description, coverImage, isPublic } = req.body;
+    const { name, description, coverImage, isPublic, type } = req.body;
     if (!name) return res.status(400).json({ message: "Playlist needs a name." });
 
     const playlist = await Playlist.create({
       name,
       description,
       coverImage: req.file ? `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}` : coverImage,
+      type: type === "playlist" ? "playlist" : "album",
       isPublic,
       owner: req.user._id,
       songs: [],
@@ -137,6 +143,11 @@ export const deletePlaylist = async (req, res) => {
   try {
     const playlist = await Playlist.findOneAndDelete({ _id: req.params.id, owner: req.user._id });
     if (!playlist) return res.status(404).json({ message: "Playlist not found." });
+
+    if (playlist.type === "album" && playlist.coverImage) {
+      const previousFile = path.basename(new URL(playlist.coverImage, "http://localhost").pathname);
+      await fs.unlink(path.resolve("uploads", previousFile)).catch(() => {});
+    }
 
     await User.findByIdAndUpdate(req.user._id, { $pull: { playlists: playlist._id } });
     res.json({ message: "Playlist deleted." });

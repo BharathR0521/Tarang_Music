@@ -15,7 +15,10 @@ const removeSongMedia = async (song) => {
 const deleteUploadedSongs = async (songs) => {
   const songIds = songs.map((song) => song._id);
   await Playlist.updateMany({ songs: { $in: songIds } }, { $pull: { songs: { $in: songIds } } });
-  await User.updateMany({ likedSongs: { $in: songIds } }, { $pull: { likedSongs: { $in: songIds } } });
+  await User.updateMany(
+    { $or: [{ likedSongs: { $in: songIds } }, { "recentPlayedSongs.song": { $in: songIds } }] },
+    { $pull: { likedSongs: { $in: songIds }, recentPlayedSongs: { song: { $in: songIds } } } }
+  );
   await Promise.all(songs.map(removeSongMedia));
   await Song.deleteMany({ _id: { $in: songIds } });
 };
@@ -29,6 +32,30 @@ export const getSongs = async (req, res) => {
     res.json(songs);
   } catch (error) {
     res.status(500).json({ message: "Could not load songs.", error: error.message });
+  }
+};
+
+// GET /api/songs/mine -> only songs uploaded by the logged-in user
+export const getMyUploadedSongs = async (req, res) => {
+  try {
+    const songs = await Song.find({ uploadedBy: req.user._id }).sort({ createdAt: -1 });
+    res.json(songs);
+  } catch (error) {
+    res.status(500).json({ message: "Could not load your uploaded songs.", error: error.message });
+  }
+};
+
+// GET /api/songs/recent -> the current user's recently played songs
+export const getRecentlyPlayed = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).populate("recentPlayedSongs.song");
+    const recentSongs = (user?.recentPlayedSongs || [])
+      .sort((a, b) => new Date(b.playedAt) - new Date(a.playedAt))
+      .filter((entry) => entry.song)
+      .map((entry) => entry.song);
+    res.json(recentSongs);
+  } catch (error) {
+    res.status(500).json({ message: "Could not load recently played songs.", error: error.message });
   }
 };
 
@@ -84,12 +111,16 @@ export const getSongById = async (req, res) => {
 // PUT /api/songs/:id/play -> call this when playback starts, to count a play
 export const registerPlay = async (req, res) => {
   try {
-    const song = await Song.findByIdAndUpdate(
-      req.params.id,
-      { $inc: { plays: 1 } },
-      { new: true }
-    );
+    const song = await Song.findByIdAndUpdate(req.params.id, { $inc: { plays: 1 } }, { new: true });
     if (!song) return res.status(404).json({ message: "Song not found." });
+    if (req.user) {
+      const recent = (req.user.recentPlayedSongs || []).filter(
+        (entry) => entry.song.toString() !== song._id.toString()
+      );
+      recent.unshift({ song: song._id, playedAt: new Date() });
+      req.user.recentPlayedSongs = recent.slice(0, 20);
+      await req.user.save();
+    }
     res.json({ plays: song.plays });
   } catch (error) {
     res.status(500).json({ message: "Could not register play.", error: error.message });
@@ -129,6 +160,34 @@ export const createSong = async (req, res) => {
   }
 };
 
+// POST /api/songs/upload -> upload a song without assigning it to an album
+export const uploadSong = async (req, res) => {
+  try {
+    const audioFile = req.files?.audio?.[0];
+    const coverFile = req.files?.coverImage?.[0];
+    if (!audioFile) return res.status(400).json({ message: "Choose an audio file to upload." });
+    if (!coverFile && !req.body.coverImage) return res.status(400).json({ message: "Choose a cover image or paste an image URL." });
+
+    const { title, artist, genre } = req.body;
+    if (!title || !artist) return res.status(400).json({ message: "Title and artist are required." });
+
+    const song = await Song.create({
+      title,
+      artist,
+      genre: genre || "Uploaded",
+      coverImage: coverFile
+        ? `${req.protocol}://${req.get("host")}/uploads/${coverFile.filename}`
+        : req.body.coverImage,
+      audioUrl: `${req.protocol}://${req.get("host")}/uploads/${audioFile.filename}`,
+      uploadedBy: req.user._id,
+    });
+
+    res.status(201).json(song);
+  } catch (error) {
+    res.status(500).json({ message: "Could not upload song.", error: error.message });
+  }
+};
+
 // DELETE /api/songs/:id -> delete a song uploaded by the logged-in user
 export const deleteUploadedSong = async (req, res) => {
   try {
@@ -136,7 +195,10 @@ export const deleteUploadedSong = async (req, res) => {
     if (!song) return res.status(404).json({ message: "Uploaded song not found." });
 
     await Playlist.updateMany({ songs: song._id }, { $pull: { songs: song._id } });
-    await User.updateMany({ likedSongs: song._id }, { $pull: { likedSongs: song._id } });
+    await User.updateMany(
+      { $or: [{ likedSongs: song._id }, { "recentPlayedSongs.song": song._id }] },
+      { $pull: { likedSongs: song._id, recentPlayedSongs: { song: song._id } } }
+    );
     await removeSongMedia(song);
     await song.deleteOne();
     res.json({ message: "Song deleted." });

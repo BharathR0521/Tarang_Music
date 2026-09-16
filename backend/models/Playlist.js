@@ -6,6 +6,7 @@ const playlistSchema = new mongoose.Schema(
     name: { type: String, required: true },
     description: { type: String, default: "" },
     coverImage: { type: String, default: "" },
+    type: { type: String, enum: ["album", "playlist"], default: "album" },
     owner: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     songs: [{ type: mongoose.Schema.Types.ObjectId, ref: "Song" }],
     isPublic: { type: Boolean, default: true },

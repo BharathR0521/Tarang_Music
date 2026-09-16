@@ -6,7 +6,7 @@ import { useAuth } from "../context/AuthContext.jsx";
 export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
@@ -14,7 +14,7 @@ export default function Login() {
     e.preventDefault();
     setError("");
     try {
-      await login(email, password);
+      await login(identifier, password);
       navigate("/");
     } catch (err) {
       setError(err.response?.data?.message || "Something went wrong. Try again.");
@@ -29,11 +29,10 @@ export default function Login() {
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
           <input
-            type="email"
             required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Email"
+            value={identifier}
+            onChange={(e) => setIdentifier(e.target.value)}
+            placeholder="Username or Email"
             className="bg-surface border border-surface2 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-amber"
           />
           <input

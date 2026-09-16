@@ -15,16 +15,16 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  const login = async (email, password) => {
-    const { data } = await api.post("/auth/login", { email, password });
+  const login = async (identifier, password) => {
+    const { data } = await api.post("/auth/login", { username: identifier, email: identifier, password });
     localStorage.setItem("tarang_token", data.token);
     localStorage.setItem("tarang_user", JSON.stringify(data));
     setUser(data);
     return data;
   };
 
-  const register = async (name, email, password, favoriteGenres) => {
-    const { data } = await api.post("/auth/register", { name, email, password, favoriteGenres });
+  const register = async (name, username, email, password, favoriteGenres) => {
+    const { data } = await api.post("/auth/register", { name, username, email, password, favoriteGenres });
     localStorage.setItem("tarang_token", data.token);
     localStorage.setItem("tarang_user", JSON.stringify(data));
     setUser(data);

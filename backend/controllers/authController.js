@@ -11,14 +11,26 @@ const generateToken = (id) =>
 // POST /api/auth/register  -> create a new account
 export const registerUser = async (req, res) => {
   try {
-    const { name, email, password, favoriteGenres } = req.body;
+    const { name, username, email, password, favoriteGenres } = req.body;
 
     if (!name || !email || !password) {
       return res.status(400).json({ message: "Name, email and password are all required." });
     }
 
-    const existingUser = await User.findOne({ email });
+    const cleanedUsername = (username || name).toString().trim();
+    if (!cleanedUsername) {
+      return res.status(400).json({ message: "Username is required." });
+    }
+
+    const normalizedUsername = cleanedUsername.toLowerCase();
+    const existingUser = await User.findOne({
+      $or: [{ username: normalizedUsername }, { email: email.toLowerCase() }],
+    });
+
     if (existingUser) {
+      if (existingUser.username === normalizedUsername) {
+        return res.status(400).json({ message: "This username is already taken." });
+      }
       return res.status(400).json({ message: "An account with this email already exists." });
     }
 
@@ -27,7 +39,8 @@ export const registerUser = async (req, res) => {
 
     const user = await User.create({
       name,
-      email,
+      username: normalizedUsername,
+      email: email.toLowerCase(),
       password: hashedPassword,
       favoriteGenres: favoriteGenres || [],
     });
@@ -35,6 +48,7 @@ export const registerUser = async (req, res) => {
     res.status(201).json({
       _id: user._id,
       name: user.name,
+      username: user.username,
       email: user.email,
       profileImage: user.profileImage,
       favoriteGenres: user.favoriteGenres,
@@ -45,19 +59,29 @@ export const registerUser = async (req, res) => {
   }
 };
 
-// POST /api/auth/login -> check email + password, hand back a token
+// POST /api/auth/login -> check username/email + password, hand back a token
 export const loginUser = async (req, res) => {
   try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email });
+    const rawIdentifier = (req.body.username || req.body.email || "").toString().trim();
+    const password = req.body.password;
+
+    if (!rawIdentifier || !password) {
+      return res.status(400).json({ message: "Username or email and password are required." });
+    }
+
+    const normalizedIdentifier = rawIdentifier.toLowerCase();
+    const user = await User.findOne({
+      $or: [{ username: normalizedIdentifier }, { email: normalizedIdentifier }],
+    });
 
     if (!user || !(await bcrypt.compare(password, user.password))) {
-      return res.status(401).json({ message: "Incorrect email or password." });
+      return res.status(401).json({ message: "Incorrect username/email or password." });
     }
 
     res.json({
       _id: user._id,
       name: user.name,
+      username: user.username,
       email: user.email,
       profileImage: user.profileImage,
       favoriteGenres: user.favoriteGenres,
