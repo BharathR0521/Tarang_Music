@@ -40,6 +40,22 @@ npm run dev      # opens on http://localhost:5173
 Open http://localhost:5173 in your browser. Create an account, pick a few
 genres you like, and the homepage will personalize itself.
 
+## 3. Deploy the frontend and API
+
+Netlify hosts the Vite frontend, while the Express API must run on a Node
+hosting service such as Render. This repository includes `render.yaml`
+for Render. Create the service from that blueprint and provide `MONGO_URI`.
+
+After the API deploys, set this environment variable in Netlify and redeploy:
+
+```
+VITE_API_URL=https://<your-render-service>.onrender.com/api
+```
+
+Set the backend `CLIENT_URL` to `https://tarangwave.netlify.app` (or your actual
+Netlify domain). Login and registration cannot work from Netlify while the
+frontend still uses `http://localhost:5000/api`.
+
 ## What's included
 
   you picked at signup.

@@ -14,8 +14,15 @@ connectDB();
 
 const app = express();
 
-// Allow the frontend (running on a different port/address) to call this API
-app.use(cors({ origin: process.env.CLIENT_URL || "*" }));
+// Allow local development and the configured deployed frontend to call this API.
+const allowedOrigins = (process.env.CLIENT_URL || "*")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+app.use(cors({
+  origin: allowedOrigins.includes("*") ? "*" : allowedOrigins,
+}));
 app.use(express.json()); // lets us read JSON sent in requests
 app.use("/uploads", express.static("uploads"));
 
