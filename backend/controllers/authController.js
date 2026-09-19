@@ -13,19 +13,19 @@ const generateToken = (id) =>
 export const registerUser = async (req, res) => {
   try {
     const { name, username, email, password, favoriteGenres } = req.body;
+    const normalizedName = name?.toString().trim();
+    const normalizedUsername = username?.toString().trim().toLowerCase();
+    const normalizedEmail = email?.toString().trim().toLowerCase();
 
-    if (!name || !email || !password) {
-      return res.status(400).json({ message: "Name, email and password are all required." });
+    if (!normalizedName || !normalizedUsername || !normalizedEmail || !password) {
+      return res.status(400).json({ message: "Name, username, email and password are all required." });
+    }
+    if (password.toString().length < 6) {
+      return res.status(400).json({ message: "Password must be at least 6 characters." });
     }
 
-    const cleanedUsername = (username || name).toString().trim();
-    if (!cleanedUsername) {
-      return res.status(400).json({ message: "Username is required." });
-    }
-
-    const normalizedUsername = cleanedUsername.toLowerCase();
     const existingUser = await User.findOne({
-      $or: [{ username: normalizedUsername }, { email: email.toLowerCase() }],
+      $or: [{ username: normalizedUsername }, { email: normalizedEmail }],
     });
 
     if (existingUser) {
@@ -39,9 +39,9 @@ export const registerUser = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     const user = await User.create({
-      name,
+      name: normalizedName,
       username: normalizedUsername,
-      email: email.toLowerCase(),
+      email: normalizedEmail,
       password: hashedPassword,
       favoriteGenres: favoriteGenres || [],
     });
@@ -64,16 +64,17 @@ export const registerUser = async (req, res) => {
 export const loginUser = async (req, res) => {
   try {
     const rawIdentifier = (req.body.username || req.body.email || "").toString().trim();
-    const password = req.body.password;
+    const password = req.body.password?.toString();
 
     if (!rawIdentifier || !password) {
       return res.status(400).json({ message: "Username or email and password are required." });
     }
 
     const normalizedIdentifier = rawIdentifier.toLowerCase();
-    const user = await User.findOne({
-      $or: [{ username: normalizedIdentifier }, { email: normalizedIdentifier }],
-    });
+    const identifierQuery = normalizedIdentifier.includes("@")
+      ? { email: normalizedIdentifier }
+      : { username: normalizedIdentifier };
+    const user = await User.findOne(identifierQuery);
 
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(401).json({ message: "Incorrect username/email or password." });

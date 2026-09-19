@@ -16,7 +16,8 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (identifier, password) => {
-    const { data } = await api.post("/auth/login", { username: identifier, email: identifier, password });
+    const loginField = identifier.includes("@") ? "email" : "username";
+    const { data } = await api.post("/auth/login", { [loginField]: identifier, password });
     localStorage.setItem("tarang_token", data.token);
     localStorage.setItem("tarang_user", JSON.stringify(data));
     setUser(data);
