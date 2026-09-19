@@ -3,6 +3,7 @@ import path from "node:path";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import User from "../models/User.js";
+import { getUploadedMediaUrl, normalizeMediaUrl } from "../utils/mediaUrl.js";
 
 // Helper: creates a login token for a given user id
 const generateToken = (id) =>
@@ -50,7 +51,7 @@ export const registerUser = async (req, res) => {
       name: user.name,
       username: user.username,
       email: user.email,
-      profileImage: user.profileImage,
+      profileImage: normalizeMediaUrl(req, user.profileImage),
       favoriteGenres: user.favoriteGenres,
       token: generateToken(user._id),
     });
@@ -83,7 +84,7 @@ export const loginUser = async (req, res) => {
       name: user.name,
       username: user.username,
       email: user.email,
-      profileImage: user.profileImage,
+      profileImage: normalizeMediaUrl(req, user.profileImage),
       favoriteGenres: user.favoriteGenres,
       token: generateToken(user._id),
     });
@@ -102,13 +103,13 @@ export const uploadProfileImage = async (req, res) => {
       await fs.unlink(path.resolve("uploads", previousFile)).catch(() => {});
     }
 
-    req.user.profileImage = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+    req.user.profileImage = getUploadedMediaUrl(req, req.file.filename);
     await req.user.save();
     res.json({
       _id: req.user._id,
       name: req.user.name,
       email: req.user.email,
-      profileImage: req.user.profileImage,
+      profileImage: normalizeMediaUrl(req, req.user.profileImage),
       favoriteGenres: req.user.favoriteGenres,
     });
   } catch (error) {
@@ -118,5 +119,7 @@ export const uploadProfileImage = async (req, res) => {
 
 // GET /api/auth/me -> return the logged-in user's own profile
 export const getMe = async (req, res) => {
-  res.json(req.user);
+  const user = req.user.toObject();
+  user.profileImage = normalizeMediaUrl(req, user.profileImage);
+  res.json(user);
 };

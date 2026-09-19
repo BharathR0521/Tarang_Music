@@ -12,3 +12,5 @@ services:
         generateValue: true
       - key: CLIENT_URL
         value: https://tarangwave.netlify.app
+      - key: PUBLIC_API_URL
+        value: https://tarang-api.onrender.com

@@ -13,6 +13,7 @@ dotenv.config();
 connectDB();
 
 const app = express();
+app.set("trust proxy", 1);
 
 // Allow local development and the configured deployed frontend to call this API.
 const allowedOrigins = (process.env.CLIENT_URL || "*")

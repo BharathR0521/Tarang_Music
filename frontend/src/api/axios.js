@@ -2,8 +2,13 @@
 // same address and automatically attaches the login token when we have one.
 import axios from "axios";
 
+const configuredApiUrl = import.meta.env.VITE_API_URL;
+const apiBaseUrl = configuredApiUrl?.includes("localhost")
+  ? "https://tarang-api.onrender.com/api"
+  : configuredApiUrl || "https://tarang-api.onrender.com/api";
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000/api",
+  baseURL: apiBaseUrl,
 });
 
 api.interceptors.request.use((config) => {

@@ -3,6 +3,7 @@ import path from "node:path";
 import Song from "../models/Song.js";
 import Playlist from "../models/Playlist.js";
 import User from "../models/User.js";
+import { getUploadedMediaUrl, normalizeSong } from "../utils/mediaUrl.js";
 
 const removeSongMedia = async (song) => {
   for (const mediaUrl of [song.audioUrl, song.coverImage]) {
@@ -29,7 +30,7 @@ export const getSongs = async (req, res) => {
     const filter = {};
     if (req.query.genre) filter.genre = req.query.genre;
     const songs = await Song.find(filter).sort({ createdAt: -1 });
-    res.json(songs);
+    res.json(songs.map((song) => normalizeSong(song, req)));
   } catch (error) {
     res.status(500).json({ message: "Could not load songs.", error: error.message });
   }
@@ -39,7 +40,7 @@ export const getSongs = async (req, res) => {
 export const getMyUploadedSongs = async (req, res) => {
   try {
     const songs = await Song.find({ uploadedBy: req.user._id }).sort({ createdAt: -1 });
-    res.json(songs);
+    res.json(songs.map((song) => normalizeSong(song, req)));
   } catch (error) {
     res.status(500).json({ message: "Could not load your uploaded songs.", error: error.message });
   }
@@ -52,7 +53,7 @@ export const getRecentlyPlayed = async (req, res) => {
     const recentSongs = (user?.recentPlayedSongs || [])
       .sort((a, b) => new Date(b.playedAt) - new Date(a.playedAt))
       .filter((entry) => entry.song)
-      .map((entry) => entry.song);
+      .map((entry) => normalizeSong(entry.song, req));
     res.json(recentSongs);
   } catch (error) {
     res.status(500).json({ message: "Could not load recently played songs.", error: error.message });
@@ -70,7 +71,7 @@ export const getRecommended = async (req, res) => {
     if (!songs || songs.length === 0) {
       songs = await Song.find().sort({ plays: -1 }).limit(20);
     }
-    res.json(songs);
+    res.json(songs.map((song) => normalizeSong(song, req)));
   } catch (error) {
     res.status(500).json({ message: "Could not load recommendations.", error: error.message });
   }
@@ -91,7 +92,7 @@ export const searchSongs = async (req, res) => {
       ],
     }).limit(50);
 
-    res.json(songs);
+    res.json(songs.map((song) => normalizeSong(song, req)));
   } catch (error) {
     res.status(500).json({ message: "Search failed.", error: error.message });
   }
@@ -102,7 +103,7 @@ export const getSongById = async (req, res) => {
   try {
     const song = await Song.findById(req.params.id);
     if (!song) return res.status(404).json({ message: "Song not found." });
-    res.json(song);
+    res.json(normalizeSong(song, req));
   } catch (error) {
     res.status(500).json({ message: "Could not load song.", error: error.message });
   }
@@ -175,14 +176,12 @@ export const uploadSong = async (req, res) => {
       title,
       artist,
       genre: genre || "Uploaded",
-      coverImage: coverFile
-        ? `${req.protocol}://${req.get("host")}/uploads/${coverFile.filename}`
-        : req.body.coverImage,
-      audioUrl: `${req.protocol}://${req.get("host")}/uploads/${audioFile.filename}`,
+      coverImage: coverFile ? getUploadedMediaUrl(req, coverFile.filename) : req.body.coverImage,
+      audioUrl: getUploadedMediaUrl(req, audioFile.filename),
       uploadedBy: req.user._id,
     });
 
-    res.status(201).json(song);
+    res.status(201).json(normalizeSong(song, req));
   } catch (error) {
     res.status(500).json({ message: "Could not upload song.", error: error.message });
   }
