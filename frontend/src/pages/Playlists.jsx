@@ -67,20 +67,20 @@ export default function Playlists({ type = "album" }) {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-5 pt-10 pb-28">
+    <div className="max-w-6xl mx-auto px-5 pt-10 pb-28 animate-fade-in-up">
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-xl font-medium text-ink">Your {isPlaylistPage ? "playlists" : "movie albums"}</h1>
         <button
           onClick={() => setShowForm((s) => !s)}
-          className="flex items-center gap-2 bg-amber text-base px-4 py-2 rounded-full text-sm font-medium hover:brightness-110"
+          className="flex items-center gap-2 bg-amber text-base px-4 py-2 rounded-full text-sm font-medium hover:brightness-110 transition-transform active:scale-95"
         >
           <FiPlus size={14} /> New {isPlaylistPage ? "playlist" : "movie album"}
         </button>
       </div>
 
       {showForm && (
-        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center px-4" onClick={() => setShowForm(false)}>
-          <form onSubmit={handleCreate} className="bg-surface rounded-xl p-5 w-full max-w-md flex flex-col gap-3" onClick={(event) => event.stopPropagation()}>
+        <div className="modal-backdrop fixed inset-0 z-50 bg-black/60 flex items-center justify-center px-4" onClick={() => setShowForm(false)}>
+          <form onSubmit={handleCreate} className="modal-panel bg-surface rounded-xl p-5 w-full max-w-md flex flex-col gap-3" onClick={(event) => event.stopPropagation()}>
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-medium text-ink">New {isPlaylistPage ? "playlist" : "movie album"}</h2>
               <button type="button" onClick={() => setShowForm(false)} className="text-muted hover:text-ink" title="Close"><FiX size={18} /></button>
@@ -121,15 +121,16 @@ export default function Playlists({ type = "album" }) {
             <p className="text-sm text-muted">You haven't made a {isPlaylistPage ? "playlist" : "movie album"} yet. Create one above.</p>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5">
-          {playlists.map((p) => (
+          {playlists.map((p, index) => (
             <div
               key={p._id}
-              className="relative bg-surface hover:bg-surface2 transition rounded-xl"
+              style={{ "--delay": `${Math.min(index, 14) * 40}ms` }}
+              className="group stagger-item relative bg-surface hover:bg-surface2 transition-all duration-300 hover:-translate-y-1 rounded-xl overflow-hidden"
             >
               <Link to={`/${isPlaylistPage ? "playlists" : "albums"}/${p._id}`} className="flex flex-col gap-3 p-4">
                 <div className="relative w-full aspect-square rounded-lg bg-surface2 flex items-center justify-center overflow-hidden">
                   {p.coverImage ? (
-                    <img src={p.coverImage} alt={`${p.name} cover`} className="absolute inset-0 block w-full h-full object-cover object-center" />
+                    <img src={p.coverImage} alt={`${p.name} cover`} className="absolute inset-0 block w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-110" />
                   ) : (
                     <FiMusic size={28} className="text-muted" />
                   )}

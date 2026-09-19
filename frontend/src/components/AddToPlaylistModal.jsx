@@ -18,8 +18,8 @@ export default function AddToPlaylistModal({ song, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center px-4" onClick={onClose}>
-      <div className="bg-surface rounded-xl p-5 w-full max-w-sm" onClick={(e) => e.stopPropagation()}>
+    <div className="modal-backdrop fixed inset-0 bg-black/60 z-50 flex items-center justify-center px-4" onClick={onClose}>
+      <div className="modal-panel bg-surface rounded-xl p-5 w-full max-w-sm" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-medium text-ink">Add "{song.title}" to...</h3>
           <button onClick={onClose} className="text-muted hover:text-ink"><FiX size={18} /></button>

@@ -43,8 +43,8 @@ export default function AddSongToPlaylistModal({ playlist, collectionType = "alb
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center px-4" onClick={onClose}>
-      <div className="bg-surface rounded-xl p-5 w-full max-w-lg" onClick={(event) => event.stopPropagation()}>
+    <div className="modal-backdrop fixed inset-0 z-50 bg-black/60 flex items-center justify-center px-4" onClick={onClose}>
+      <div className="modal-panel bg-surface rounded-xl p-5 w-full max-w-lg" onClick={(event) => event.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-sm font-medium text-ink">Add songs to {playlist.name}</h2>

@@ -5,7 +5,9 @@ import Logo from "./Logo.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 
 const navLinkClass = ({ isActive }) =>
-  `transition ${isActive ? "text-ink font-medium" : "text-muted hover:text-ink"}`;
+  `relative py-1 transition-colors after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:rounded-full after:bg-amber after:transition-all after:duration-300 ${
+    isActive ? "text-ink font-medium after:w-full" : "text-muted hover:text-ink after:w-0 hover:after:w-full"
+  }`;
 
 export default function Navbar() {
   const [query, setQuery] = useState("");
@@ -56,7 +58,7 @@ export default function Navbar() {
       <div className="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           {location.pathname !== "/" && <button onClick={handleBack} className="text-muted hover:text-ink transition" title="Go back" aria-label="Go back"><FiArrowLeft size={19} /></button>}
-          <Link to="/"><Logo /></Link>
+          <Link to="/" className="inline-flex transition-transform duration-300 hover:scale-105"><Logo /></Link>
         </div>
 
         <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-md">
@@ -92,19 +94,19 @@ export default function Navbar() {
               {profileError && <span className="absolute top-14 right-5 text-xs text-red-400">{profileError}</span>}
             </div>
           ) : (
-            <Link to="/login" className="bg-amber text-base font-medium px-4 py-2 rounded-full hover:brightness-110 transition">
+            <Link to="/login" className="bg-amber text-base font-medium px-4 py-2 rounded-full hover:brightness-110 transition-transform active:scale-95">
               Log in
             </Link>
           )}
         </nav>
 
-        <button className="md:hidden text-ink" onClick={() => setMenuOpen((o) => !o)}>
+        <button className="md:hidden text-ink transition-transform active:scale-90" onClick={() => setMenuOpen((o) => !o)}>
           {menuOpen ? <FiX size={22} /> : <FiMenu size={22} />}
         </button>
       </div>
 
       {menuOpen && (
-        <div className="md:hidden px-5 pb-4 flex flex-col gap-3 border-t border-surface2">
+        <div className="md:hidden px-5 pb-4 flex flex-col gap-3 border-t border-surface2 animate-fade-in-up">
           <form onSubmit={handleSearch} className="mt-3">
             <input
               value={query}

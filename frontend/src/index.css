@@ -38,6 +38,73 @@ h1, h2, h3, h4 {
   @apply font-display;
 }
 
+/* ===== Motion system =====
+   A small, reusable set of animations used across pages so every
+   card, modal, and page transition feels consistent instead of
+   ad-hoc CSS scattered per component. */
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.94) translateY(6px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes slideUpIn {
+  from { opacity: 0; transform: translateY(100%); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes shimmer {
+  from { background-position: -400px 0; }
+  to   { background-position: 400px 0; }
+}
+@keyframes eqBeat {
+  0%, 100% { transform: scaleY(0.35); }
+  50%      { transform: scaleY(1); }
+}
+
+/* Page / section entrance. Apply once on mount; stagger children with
+   the inline `--delay` custom property (see .stagger-item). */
+.animate-fade-in-up { animation: fadeInUp 0.55s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.stagger-item { animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: var(--delay, 0ms); }
+
+/* Modals: dim the backdrop in, pop the panel in with a soft overshoot. */
+.modal-backdrop { animation: fadeIn 0.18s ease both; }
+.modal-panel { animation: scaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+/* Player bar slides up from off-screen the first time a song plays. */
+.animate-slide-up-in { animation: slideUpIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+/* "Now playing" equalizer — three bars beating out of phase. */
+.eq-bars { @apply flex items-end gap-[2px] h-3; }
+.eq-bars span { @apply w-[3px] bg-base rounded-full; animation: eqBeat 0.9s ease-in-out infinite; }
+.eq-bars span:nth-child(1) { animation-delay: -0.6s; }
+.eq-bars span:nth-child(2) { animation-delay: -0.3s; }
+.eq-bars span:nth-child(3) { animation-delay: 0s; }
+
+/* Loading skeletons for song grids, so the library doesn't just say
+   "Loading..." while covers pop in one by one. */
+.skeleton {
+  @apply rounded-xl bg-surface2 relative overflow-hidden;
+  background-image: linear-gradient(90deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.09) 20%, rgba(255,255,255,0.03) 40%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+/* Respect users who've asked for less motion. */
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in-up, .stagger-item, .modal-backdrop, .modal-panel,
+  .animate-slide-up-in, .eq-bars span, .skeleton, .hero-wave span {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
 /* thin custom scrollbar to match the dark theme */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: #0F1420; }

@@ -64,7 +64,7 @@ export default function PlaylistDetail() {
   const isOwner = user && playlist.owner?._id === user._id;
 
   return (
-    <div className="max-w-6xl mx-auto px-5 pt-10 pb-28">
+    <div className="max-w-6xl mx-auto px-5 pt-10 pb-28 animate-fade-in-up">
       <div className="flex flex-col md:flex-row gap-6 mb-10">
         <div className="relative w-40 h-40 md:w-56 md:h-56 aspect-square rounded-xl bg-surface flex items-center justify-center overflow-hidden shrink-0">
           {playlist.coverImage ? (
@@ -101,7 +101,8 @@ export default function PlaylistDetail() {
           {playlist.songs.map((song, i) => (
             <li
               key={song._id}
-              className="group flex items-center gap-4 py-2 px-2 rounded-lg hover:bg-surface transition"
+              style={{ "--delay": `${Math.min(i, 14) * 30}ms` }}
+              className="stagger-item group flex items-center gap-4 py-2 px-2 rounded-lg hover:bg-surface transition-colors"
             >
               <span className="w-5 text-xs text-muted text-right">{i + 1}</span>
               <button onClick={() => playSong(song, playlist.songs)} className="relative shrink-0 w-10 h-10 rounded bg-surface2 flex items-center justify-center overflow-hidden">

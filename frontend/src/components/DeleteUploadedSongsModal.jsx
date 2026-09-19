@@ -37,8 +37,8 @@ export default function DeleteUploadedSongsModal({ onClose, onDeleted }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center px-4" onClick={onClose}>
-      <div className="bg-surface rounded-xl p-5 w-full max-w-lg" onClick={(event) => event.stopPropagation()}>
+    <div className="modal-backdrop fixed inset-0 z-50 bg-black/60 flex items-center justify-center px-4" onClick={onClose}>
+      <div className="modal-panel bg-surface rounded-xl p-5 w-full max-w-lg" onClick={(event) => event.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-sm font-medium text-ink">Delete uploaded songs permanently</h2>
           <button onClick={onClose} className="text-muted hover:text-ink" title="Close"><FiX size={18} /></button>

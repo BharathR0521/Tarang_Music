@@ -31,7 +31,7 @@ export default function Register() {
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-5 py-10">
-      <div className="w-full max-w-sm">
+      <div className="w-full max-w-sm animate-fade-in-up">
         <div className="flex justify-center mb-8"><Logo size="lg" /></div>
         <h1 className="text-lg font-medium text-ink text-center mb-6">Create your account</h1>
 
@@ -74,7 +74,7 @@ export default function Register() {
                 type="button"
                 key={g}
                 onClick={() => toggleGenre(g)}
-                className={`px-3 py-1 rounded-full text-xs transition ${
+                className={`px-3 py-1 rounded-full text-xs transition-all active:scale-90 ${
                   genres.includes(g) ? "bg-teal text-base" : "bg-surface2 text-muted hover:text-ink"
                 }`}
               >
@@ -84,7 +84,7 @@ export default function Register() {
           </div>
 
           {error && <p className="text-xs text-red-400 mt-2">{error}</p>}
-          <button type="submit" className="bg-amber text-base font-medium rounded-full py-2.5 mt-3 hover:brightness-110 transition">
+          <button type="submit" className="bg-amber text-base font-medium rounded-full py-2.5 mt-3 hover:brightness-110 transition-transform active:scale-95">
             Create account
           </button>
         </form>

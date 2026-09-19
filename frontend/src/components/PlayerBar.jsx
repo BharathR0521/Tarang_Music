@@ -17,11 +17,11 @@ export default function PlayerBar() {
   if (!currentSong) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 bg-surface border-t border-surface2 px-4 py-3">
+    <div className="fixed bottom-0 left-0 right-0 z-50 bg-surface border-t border-surface2 px-4 py-3 animate-slide-up-in">
       <div className="max-w-6xl mx-auto flex items-center gap-4">
         {/* Song info */}
         <div className="flex items-center gap-3 w-1/4 min-w-[160px]">
-          <img src={currentSong.coverImage} alt="" className="w-12 h-12 rounded-md object-cover" />
+          <img src={currentSong.coverImage} alt="" className={`w-12 h-12 rounded-md object-cover transition-shadow duration-300 ${isPlaying ? "shadow-[0_0_0_2px_rgba(244,169,77,0.5)]" : ""}`} />
           <div className="min-w-0">
             <p className="text-sm text-ink truncate">{currentSong.title}</p>
             <p className="text-xs text-muted truncate">{currentSong.artist}</p>
@@ -33,22 +33,22 @@ export default function PlayerBar() {
           <div className="flex items-center gap-5">
             <button
               onClick={() => setShuffle(!shuffle)}
-              className={shuffle ? "text-amber" : "text-muted hover:text-ink"}
+              className={`transition-transform active:scale-90 ${shuffle ? "text-amber" : "text-muted hover:text-ink"}`}
               title="Shuffle"
             >
               <FiShuffle size={16} />
             </button>
-            <button onClick={playPrevious} className="text-ink hover:text-amber" title="Previous">
+            <button onClick={playPrevious} className="text-ink hover:text-amber transition-transform active:scale-90" title="Previous">
               <FiSkipBack size={18} />
             </button>
             <button
               onClick={togglePlay}
-              className="w-9 h-9 rounded-full bg-amber flex items-center justify-center text-base hover:brightness-110"
+              className="w-9 h-9 rounded-full bg-amber flex items-center justify-center text-base hover:brightness-110 transition-transform active:scale-90"
               title={isPlaying ? "Pause" : "Play"}
             >
               {isPlaying ? <FiPause size={16} /> : <FiPlay size={16} className="ml-0.5" />}
             </button>
-            <button onClick={playNext} className="text-ink hover:text-amber" title="Next">
+            <button onClick={playNext} className="text-ink hover:text-amber transition-transform active:scale-90" title="Next">
               <FiSkipForward size={18} />
             </button>
           </div>

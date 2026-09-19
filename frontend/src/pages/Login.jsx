@@ -23,7 +23,7 @@ export default function Login() {
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-5">
-      <div className="w-full max-w-sm">
+      <div className="w-full max-w-sm animate-fade-in-up">
         <div className="flex justify-center mb-8"><Logo size="lg" /></div>
         <h1 className="text-lg font-medium text-ink text-center mb-6">Welcome back</h1>
 
@@ -44,7 +44,7 @@ export default function Login() {
             className="bg-surface border border-surface2 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-amber"
           />
           {error && <p className="text-xs text-red-400">{error}</p>}
-          <button type="submit" className="bg-amber text-base font-medium rounded-full py-2.5 mt-2 hover:brightness-110 transition">
+          <button type="submit" className="bg-amber text-base font-medium rounded-full py-2.5 mt-2 hover:brightness-110 transition-transform active:scale-95">
             Log in
           </button>
         </form>

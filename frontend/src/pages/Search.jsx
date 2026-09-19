@@ -31,7 +31,7 @@ export default function Search() {
   const isLiked = (song) => user && song.likes?.includes(user._id);
 
   return (
-    <div className="max-w-6xl mx-auto px-5 pt-10 pb-28">
+    <div className="max-w-6xl mx-auto px-5 pt-10 pb-28 animate-fade-in-up">
       <h1 className="text-xl font-medium text-ink mb-1">
         {q ? `Results for "${q}"` : "Search"}
       </h1>
@@ -46,11 +46,12 @@ export default function Search() {
       )}
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-        {results.map((song) => (
+        {results.map((song, index) => (
           <SongCard
             key={song._id}
             song={song}
             songList={results}
+            index={index}
             liked={isLiked(song)}
             onLike={handleLike}
             onAddToPlaylist={user ? setAddingSong : null}
