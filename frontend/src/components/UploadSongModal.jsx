@@ -43,8 +43,9 @@ export default function UploadSongModal({ onClose, onUploaded }) {
   };
 
   return (
-    <div className="modal-backdrop fixed inset-0 bg-black/60 z-50 flex items-center justify-center px-4" onClick={onClose}>
-      <form onSubmit={handleSubmit} className="modal-panel bg-surface rounded-xl p-5 w-full max-w-lg max-h-[90vh] overflow-y-auto" onClick={(event) => event.stopPropagation()}>
+    <div className="modal-backdrop fixed inset-0 z-[100] bg-black/60 px-4 py-6 sm:py-10" onClick={onClose}>
+      <div className="flex min-h-full items-center justify-center">
+        <form onSubmit={handleSubmit} className="modal-panel w-full max-w-lg rounded-xl bg-surface p-5" onClick={(event) => event.stopPropagation()}>
         <div className="flex items-center justify-between mb-5">
           <h3 className="flex items-center gap-2 text-sm font-medium text-ink"><FiUpload /> Upload song</h3>
           <button type="button" onClick={onClose} className="text-muted hover:text-ink" title="Close"><FiX size={18} /></button>
@@ -60,7 +61,8 @@ export default function UploadSongModal({ onClose, onUploaded }) {
         </div>
         {error && <p className="text-xs text-red-400 mt-3">{error}</p>}
         <button type="submit" disabled={uploading || !form.audio} className="bg-amber text-base font-medium rounded-full px-4 py-2 mt-5 disabled:opacity-50 transition-transform active:scale-95">{uploading ? "Uploading..." : "Upload song"}</button>
-      </form>
+        </form>
+      </div>
     </div>
   );
 }

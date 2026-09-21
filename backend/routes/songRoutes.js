@@ -30,6 +30,7 @@ router.put("/:id/like", protect, toggleLike);      // like / unlike
 router.post("/", createSong);                      // add a song (library management)
 router.post(
   "/upload",
+  protect,
   uploadSongMiddleware.fields([
     { name: "audio", maxCount: 1 },
     { name: "coverImage", maxCount: 1 },
