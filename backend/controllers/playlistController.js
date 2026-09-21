@@ -3,7 +3,7 @@ import path from "node:path";
 import Playlist from "../models/Playlist.js";
 import Song from "../models/Song.js";
 import User from "../models/User.js";
-import { getUploadedMediaUrl, normalizePlaylist } from "../utils/mediaUrl.js";
+import { getFilenameFromMediaUrl, getUploadedMediaUrl, normalizePlaylist } from "../utils/mediaUrl.js";
 
 // GET /api/playlists/mine -> all playlists belonging to the logged-in user
 export const getMyPlaylists = async (req, res) => {
@@ -70,8 +70,10 @@ export const updatePlaylist = async (req, res) => {
     if (description !== undefined) playlist.description = description;
     if (req.file) {
       if (playlist.coverImage) {
-        const previousFile = path.basename(new URL(playlist.coverImage, "http://localhost").pathname);
-        await fs.unlink(path.resolve("uploads", previousFile)).catch(() => {});
+        const previousFile = getFilenameFromMediaUrl(playlist.coverImage);
+        if (previousFile) {
+          await fs.unlink(path.resolve("uploads", previousFile)).catch(() => {});
+        }
       }
       playlist.coverImage = getUploadedMediaUrl(req, req.file.filename);
     } else if (coverImage !== undefined) {
@@ -152,8 +154,10 @@ export const deletePlaylist = async (req, res) => {
     if (!playlist) return res.status(404).json({ message: "Playlist not found." });
 
     if (playlist.type === "album" && playlist.coverImage) {
-      const previousFile = path.basename(new URL(playlist.coverImage, "http://localhost").pathname);
-      await fs.unlink(path.resolve("uploads", previousFile)).catch(() => {});
+      const previousFile = getFilenameFromMediaUrl(playlist.coverImage);
+      if (previousFile) {
+        await fs.unlink(path.resolve("uploads", previousFile)).catch(() => {});
+      }
     }
 
     await User.findByIdAndUpdate(req.user._id, { $pull: { playlists: playlist._id } });

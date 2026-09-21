@@ -3,7 +3,7 @@ import path from "node:path";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import User from "../models/User.js";
-import { getUploadedMediaUrl, normalizeMediaUrl } from "../utils/mediaUrl.js";
+import { getFilenameFromMediaUrl, getUploadedMediaUrl, normalizeMediaUrl } from "../utils/mediaUrl.js";
 
 // Helper: creates a login token for a given user id
 const generateToken = (id) =>
@@ -100,8 +100,10 @@ export const uploadProfileImage = async (req, res) => {
     if (!req.file) return res.status(400).json({ message: "Choose an image to upload." });
 
     if (req.user.profileImage) {
-      const previousFile = path.basename(new URL(req.user.profileImage, "http://localhost").pathname);
-      await fs.unlink(path.resolve("uploads", previousFile)).catch(() => {});
+      const previousFile = getFilenameFromMediaUrl(req.user.profileImage);
+      if (previousFile) {
+        await fs.unlink(path.resolve("uploads", previousFile)).catch(() => {});
+      }
     }
 
     req.user.profileImage = getUploadedMediaUrl(req, req.file.filename);

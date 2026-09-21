@@ -31,13 +31,14 @@ app.use(cors({
 
     callback(new Error("Origin not allowed by CORS"));
   },
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
 }));
 app.use(express.json()); // lets us read JSON sent in requests
 app.use("/uploads", express.static("uploads"));
 
-// A simple health-check route: open http://localhost:5000/ in a browser
-// and you should see this message if the backend is running correctly.
+// A simple health-check route: the deployed backend should respond at its public URL.
 app.get("/", (req, res) => {
   res.send("Tarang API is running. See /api/songs, /api/auth, /api/playlists, /api/comments");
 });
