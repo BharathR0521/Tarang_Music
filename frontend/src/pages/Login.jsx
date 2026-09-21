@@ -17,7 +17,9 @@ export default function Login() {
       await login(identifier, password);
       navigate("/");
     } catch (err) {
-      setError(err.response?.data?.message || "Something went wrong. Try again.");
+      const backendMessage = err?.response?.data?.message;
+      const networkMessage = err?.message === "Network Error" ? "Unable to reach the server. Check your connection and try again." : "";
+      setError(backendMessage || networkMessage || "Something went wrong. Try again.");
     }
   };
 
