@@ -47,6 +47,10 @@ h1, h2, h3, h4 {
   from { opacity: 0; transform: translateY(14px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+@keyframes pageEnter {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 @keyframes fadeIn {
   from { opacity: 0; }
   to   { opacity: 1; }
@@ -71,6 +75,7 @@ h1, h2, h3, h4 {
 /* Page / section entrance. Apply once on mount; stagger children with
    the inline `--delay` custom property (see .stagger-item). */
 .animate-fade-in-up { animation: fadeInUp 0.55s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.page-transition { animation: pageEnter 0.42s cubic-bezier(0.16, 1, 0.3, 1) both; }
 .stagger-item { animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: var(--delay, 0ms); }
 
 /* Modals: dim the backdrop in, pop the panel in with a soft overshoot. */
@@ -99,7 +104,7 @@ h1, h2, h3, h4 {
 /* Respect users who've asked for less motion. */
 @media (prefers-reduced-motion: reduce) {
   .animate-fade-in-up, .stagger-item, .modal-backdrop, .modal-panel,
-  .animate-slide-up-in, .eq-bars span, .skeleton, .hero-wave span {
+  .animate-slide-up-in, .page-transition, .eq-bars span, .skeleton, .hero-wave span {
     animation: none !important;
     transition: none !important;
   }

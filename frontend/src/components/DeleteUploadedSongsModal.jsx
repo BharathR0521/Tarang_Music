@@ -20,6 +20,12 @@ export default function DeleteUploadedSongsModal({ onClose, onDeleted }) {
       : [...current, songId]);
   };
 
+  const allSelected = songs.length > 0 && selectedIds.length === songs.length;
+
+  const toggleAll = () => {
+    setSelectedIds(allSelected ? [] : songs.map((song) => song._id));
+  };
+
   const handleDelete = async () => {
     if (selectedIds.length === 0) return;
     if (!window.confirm(`Permanently delete ${selectedIds.length} selected song${selectedIds.length === 1 ? "" : "s"}?`)) return;
@@ -45,6 +51,7 @@ export default function DeleteUploadedSongsModal({ onClose, onDeleted }) {
         </div>
         <p className="text-xs text-muted mb-3">This permanently removes selected songs from every album and playlist.</p>
         {error && <p className="text-xs text-red-400 mb-3">{error}</p>}
+        {songs.length > 0 && <button type="button" onClick={toggleAll} className="text-xs text-teal hover:text-ink mb-2">{allSelected ? "Clear all" : "Select all"}</button>}
         <div className="max-h-72 overflow-y-auto space-y-1">
           {songs.map((song) => (
             <label key={song._id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-surface2 cursor-pointer">
@@ -58,7 +65,7 @@ export default function DeleteUploadedSongsModal({ onClose, onDeleted }) {
           {songs.length === 0 && <p className="text-xs text-muted py-4 text-center">No uploaded songs found.</p>}
         </div>
         <button onClick={handleDelete} disabled={deleting || selectedIds.length === 0} className="inline-flex items-center gap-2 bg-red-400 text-base font-medium rounded-full px-4 py-2 mt-4 disabled:opacity-50">
-          <FiTrash2 size={15} /> {deleting ? "Deleting..." : "Delete selected"}
+          <FiTrash2 size={15} /> {deleting ? "Deleting..." : allSelected ? "Delete all uploaded" : "Delete selected"}
         </button>
       </div>
     </div>

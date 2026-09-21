@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { FiUpload, FiMusic } from "react-icons/fi";
+import { FiUpload, FiMusic, FiTrash2 } from "react-icons/fi";
 import api from "../api/axios.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import SongCard from "../components/SongCard.jsx";
 import UploadSongModal from "../components/UploadSongModal.jsx";
 import AddToPlaylistModal from "../components/AddToPlaylistModal.jsx";
+import DeleteUploadedSongsModal from "../components/DeleteUploadedSongsModal.jsx";
 
 export default function Songs() {
   const { user } = useAuth();
@@ -12,6 +13,7 @@ export default function Songs() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showUpload, setShowUpload] = useState(false);
+  const [showDeleteAll, setShowDeleteAll] = useState(false);
   const [addingSong, setAddingSong] = useState(null);
 
   const loadSongs = async () => {
@@ -53,7 +55,10 @@ export default function Songs() {
           <h1 className="text-3xl md:text-4xl font-semibold text-ink mt-2">Songs</h1>
           <p className="text-sm text-muted mt-2">Every track in your Tarang collection, ready when you are.</p>
         </div>
-        {user && <button onClick={() => setShowUpload(true)} className="inline-flex items-center gap-2 bg-amber text-base font-medium rounded-full px-4 py-2 hover:brightness-110 transition-transform active:scale-95"><FiUpload size={16} /> Upload song</button>}
+        {user && <div className="flex flex-wrap gap-2">
+          <button onClick={() => setShowDeleteAll(true)} className="inline-flex items-center gap-2 border border-red-400/40 text-red-300 font-medium rounded-full px-4 py-2 hover:bg-red-400/10 transition-transform active:scale-95"><FiTrash2 size={16} /> Delete all uploaded</button>
+          <button onClick={() => setShowUpload(true)} className="inline-flex items-center gap-2 bg-amber text-base font-medium rounded-full px-4 py-2 hover:brightness-110 transition-transform active:scale-95"><FiUpload size={16} /> Upload song</button>
+        </div>}
       </div>
       {error && <p className="mb-5 text-sm text-red-300 animate-fade-in-up">{error}</p>}
       {loading ? (
@@ -74,6 +79,7 @@ export default function Songs() {
         </div>
       )}
       {showUpload && <UploadSongModal onClose={() => setShowUpload(false)} onUploaded={(song) => setSongs((current) => [song, ...current])} />}
+      {showDeleteAll && <DeleteUploadedSongsModal onClose={() => setShowDeleteAll(false)} onDeleted={loadSongs} />}
       {addingSong && <AddToPlaylistModal song={addingSong} onClose={() => setAddingSong(null)} />}
     </div>
   );

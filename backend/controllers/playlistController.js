@@ -35,6 +35,11 @@ export const getPlaylistById = async (req, res) => {
 export const createPlaylist = async (req, res) => {
   try {
     const { name, description, coverImage, isPublic, type } = req.body;
+    let songIds = req.body.songIds || [];
+    if (typeof songIds === "string") {
+      try { songIds = JSON.parse(songIds); } catch { songIds = []; }
+    }
+    if (!Array.isArray(songIds)) songIds = [];
     if (!name) return res.status(400).json({ message: "Playlist needs a name." });
 
     const playlist = await Playlist.create({
@@ -44,7 +49,7 @@ export const createPlaylist = async (req, res) => {
       type: type === "playlist" ? "playlist" : "album",
       isPublic,
       owner: req.user._id,
-      songs: [],
+      songs: songIds,
     });
 
     await User.findByIdAndUpdate(req.user._id, { $push: { playlists: playlist._id } });
