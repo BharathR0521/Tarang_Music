@@ -3,7 +3,7 @@ import dns from "node:dns";
 import mongoose from "mongoose";
 
 const connectDB = async () => {
-  const configuredUri = process.env.MONGO_URI;
+  const configuredUri = process.env.MONGODB_URI || process.env.MONGO_URI;
 
   try {
     const dnsServers = process.env.DNS_SERVERS?.split(",").map((server) => server.trim()).filter(Boolean);

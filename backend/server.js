@@ -17,14 +17,21 @@ connectDB();
 const app = express();
 app.set("trust proxy", 1);
 
-// Allow local development and the configured deployed frontend to call this API.
-const allowedOrigins = (process.env.CLIENT_URL || "*")
+const allowedOrigins = (process.env.CLIENT_URL || "https://tarangwave.netlify.app")
   .split(",")
   .map((origin) => origin.trim())
   .filter(Boolean);
 
 app.use(cors({
-  origin: allowedOrigins.includes("*") ? "*" : allowedOrigins,
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+      return;
+    }
+
+    callback(new Error("Origin not allowed by CORS"));
+  },
+  credentials: true,
 }));
 app.use(express.json()); // lets us read JSON sent in requests
 app.use("/uploads", express.static("uploads"));
@@ -47,4 +54,4 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Tarang backend running on http://localhost:${PORT}`));
+app.listen(PORT, "0.0.0.0", () => console.log(`Tarang backend running on http://0.0.0.0:${PORT}`));

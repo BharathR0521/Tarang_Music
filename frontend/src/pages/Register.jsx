@@ -23,7 +23,7 @@ export default function Register() {
     setError("");
     try {
       await register(name, username, email, password, genres);
-      navigate("/");
+      navigate("/login");
     } catch (err) {
       setError(err.response?.data?.message || "Something went wrong. Try again.");
     }

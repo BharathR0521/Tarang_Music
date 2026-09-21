@@ -2,10 +2,7 @@
 // same address and automatically attaches the login token when we have one.
 import axios from "axios";
 
-const configuredApiUrl = import.meta.env.VITE_API_URL;
-const apiBaseUrl = configuredApiUrl?.includes("localhost")
-  ? "https://tarang-api.onrender.com/api"
-  : configuredApiUrl || "https://tarang-api.onrender.com/api";
+const apiBaseUrl = import.meta.env.VITE_API_URL?.replace(/\/$/, "");
 
 const api = axios.create({
   baseURL: apiBaseUrl,
