@@ -17,7 +17,7 @@ connectDB();
 const app = express();
 app.set("trust proxy", 1);
 
-const allowedOrigins = (process.env.CLIENT_URL || "http://localhost:5173,http://127.0.0.1:5173,https://tarangwave.netlify.app")
+const allowedOrigins = (process.env.CLIENT_URL || "https://tarangwave.netlify.app")
   .split(",")
   .map((origin) => origin.trim())
   .filter(Boolean);
@@ -31,16 +31,20 @@ app.use(cors({
 
     callback(new Error("Origin not allowed by CORS"));
   },
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
 }));
 app.use(express.json()); // lets us read JSON sent in requests
 app.use("/uploads", express.static("uploads"));
 
-// A simple health-check route: the deployed backend should respond at its public URL.
+// A simple health-check route: open http://localhost:5000/ in a browser
+// and you should see this message if the backend is running correctly.
 app.get("/", (req, res) => {
   res.send("Tarang API is running. See /api/songs, /api/auth, /api/playlists, /api/comments");
+});
+
+// Health-check endpoint for uptime monitors / deployment verification.
+app.get("/api/health", (req, res) => {
+  res.json({ success: true, message: "Backend API is running" });
 });
 
 app.use("/api/auth", authRoutes);

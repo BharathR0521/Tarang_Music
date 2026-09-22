@@ -24,7 +24,7 @@ export default function Navbar() {
   };
 
   const handleBack = () => {
-    if (location.key !== "default") navigate(-1);
+    if (window.history.length > 1) navigate(-1);
     else navigate("/");
   };
 

@@ -18,11 +18,14 @@ tarang-music-app/
 cd backend
 npm install
 npm run seed     # fills the database with 10 sample songs (run once)
-npm run dev      # starts the API on the configured local or deployed port
+npm run dev      # starts the API on http://localhost:5000
 ```
 
-Your MongoDB Atlas connection string should be set in `backend/.env`.
-**Important:** `.env` holds your database password and JWT secret — it should stay local and private.
+Your MongoDB Atlas connection string is already placed in `backend/.env`.
+**Important:** `.env` holds your database password — it's already excluded
+from git via `.gitignore`, so don't remove that line, and never paste this
+file into a public repo or chat. If you ever share this project publicly,
+change your Atlas password first and put a fresh one in `.env`.
 
 ## 2. Run the frontend
 
@@ -31,10 +34,10 @@ In a second terminal:
 ```
 cd frontend
 npm install
-npm run dev      # starts the Vite dev server
+npm run dev      # opens on http://localhost:5173
 ```
 
-Open the local Vite URL in your browser. Create an account, pick a few
+Open http://localhost:5173 in your browser. Create an account, pick a few
 genres you like, and the homepage will personalize itself.
 
 ## 3. Deploy the frontend and API
@@ -49,7 +52,9 @@ After the API deploys, set this environment variable in Netlify and redeploy:
 VITE_API_URL=https://<your-render-service>.onrender.com/api
 ```
 
-Set the backend `CLIENT_URL` to your deployed Netlify domain. The frontend must reference the deployed backend URL rather than localhost.
+Set the backend `CLIENT_URL` to `https://tarangwave.netlify.app` (or your actual
+Netlify domain). Login and registration cannot work from Netlify while the
+frontend still uses `http://localhost:5000/api`.
 
 ## What's included
 

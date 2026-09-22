@@ -5,11 +5,7 @@ import Song from '../models/Song.js';
 import Playlist from '../models/Playlist.js';
 
 const run = async () => {
-  const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI;
-  if (!mongoUri) {
-    throw new Error('MONGO_URI or MONGODB_URI is required for the seed script.');
-  }
-  await mongoose.connect(mongoUri);
+  await mongoose.connect('mongodb://127.0.0.1:27017/tarang');
 
   const email = 'tamilfan@example.com';
   const username = 'tamilfan';

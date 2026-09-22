@@ -1,15 +1,6 @@
 export const getPublicApiUrl = (req) =>
   (process.env.PUBLIC_API_URL || `${req.protocol}://${req.get("host")}`).replace(/\/+$/, "");
 
-export const getFilenameFromMediaUrl = (mediaUrl) => {
-  try {
-    const parsed = new URL(mediaUrl);
-    return decodeURIComponent(parsed.pathname.split("/").pop() || "");
-  } catch {
-    return decodeURIComponent((mediaUrl || "").split("/").filter(Boolean).at(-1) || "");
-  }
-};
-
 export const getUploadedMediaUrl = (req, filename) =>
   `${getPublicApiUrl(req)}/uploads/${filename}`;
 

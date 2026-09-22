@@ -5,13 +5,10 @@ import Playlist from "../models/Playlist.js";
 import User from "../models/User.js";
 import { getUploadedMediaUrl, normalizeSong } from "../utils/mediaUrl.js";
 
-import { getFilenameFromMediaUrl } from "../utils/mediaUrl.js";
-
 const removeSongMedia = async (song) => {
   for (const mediaUrl of [song.audioUrl, song.coverImage]) {
     if (!mediaUrl) continue;
-    const filename = getFilenameFromMediaUrl(mediaUrl);
-    if (!filename) continue;
+    const filename = path.basename(new URL(mediaUrl, "http://localhost").pathname);
     await fs.unlink(path.resolve("uploads", filename)).catch(() => {});
   }
 };
