@@ -14,18 +14,27 @@ export default function Register() {
   const [password, setPassword] = useState("");
   const [genres, setGenres] = useState([]);
   const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   const toggleGenre = (g) =>
     setGenres((prev) => (prev.includes(g) ? prev.filter((x) => x !== g) : [...prev, g]));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (submitting) return;
     setError("");
+    setSubmitting(true);
     try {
-      await register(name, username, email, password, genres);
-      navigate("/login");
+      await register(name.trim(), username.trim(), email.trim(), password, genres);
+      navigate("/", { replace: true });
     } catch (err) {
-      setError(err.response?.data?.message || "Something went wrong. Try again.");
+      if (!err.response) {
+        setError("Can't reach the Tarang server. The API may be unavailable; please try again later.");
+      } else {
+        setError(err.response.data?.message || "Could not create your account. Please try again.");
+      }
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -38,6 +47,7 @@ export default function Register() {
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
           <input
             required
+            autoComplete="name"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Name"
@@ -45,6 +55,7 @@ export default function Register() {
           />
           <input
             required
+            autoComplete="username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             placeholder="Username"
@@ -53,6 +64,7 @@ export default function Register() {
           <input
             type="email"
             required
+            autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
@@ -61,6 +73,7 @@ export default function Register() {
           <input
             type="password"
             required
+            autoComplete="new-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
@@ -73,6 +86,7 @@ export default function Register() {
               <button
                 type="button"
                 key={g}
+                disabled={submitting}
                 onClick={() => toggleGenre(g)}
                 className={`px-3 py-1 rounded-full text-xs transition-all active:scale-90 ${
                   genres.includes(g) ? "bg-teal text-base" : "bg-surface2 text-muted hover:text-ink"
@@ -83,9 +97,9 @@ export default function Register() {
             ))}
           </div>
 
-          {error && <p className="text-xs text-red-400 mt-2">{error}</p>}
-          <button type="submit" className="bg-amber text-base font-medium rounded-full py-2.5 mt-3 hover:brightness-110 transition-transform active:scale-95">
-            Create account
+          {error && <p role="alert" className="text-xs leading-5 text-red-300 mt-2">{error}</p>}
+          <button type="submit" disabled={submitting} className="bg-amber text-base font-medium rounded-full py-2.5 mt-3 hover:brightness-110 transition-transform active:scale-95 disabled:cursor-wait disabled:opacity-60">
+            {submitting ? "Creating account..." : "Create account"}
           </button>
         </form>
 

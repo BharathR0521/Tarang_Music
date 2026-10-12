@@ -26,6 +26,10 @@ Your MongoDB Atlas connection string is already placed in `backend/.env`.
 from git via `.gitignore`, so don't remove that line, and never paste this
 file into a public repo or chat. If you ever share this project publicly,
 change your Atlas password first and put a fresh one in `.env`.
+To create your own local settings file, copy `backend/.env.example` to
+`backend/.env` and replace the example values. Keep credentials only in
+environment variables; the frontend must call the API and must never connect
+directly to MongoDB.
 
 ## 2. Run the frontend
 
@@ -44,7 +48,11 @@ genres you like, and the homepage will personalize itself.
 
 Netlify hosts the Vite frontend, while the Express API must run on a Node
 hosting service such as Render. This repository includes `render.yaml`
-for Render. Create the service from that blueprint and provide `MONGO_URI`.
+for Render. Create or redeploy the `tarang-api` Node web service from that
+Blueprint, with `backend` as its root directory and `npm start` as its start
+command. Set `MONGO_URI` to the MongoDB Atlas connection string and make sure
+Atlas Network Access allows connections from Render. `JWT_SECRET` is generated
+by the Blueprint.
 
 After the API deploys, set this environment variable in Netlify and redeploy:
 
@@ -56,6 +64,14 @@ Set the backend `CLIENT_URL` to `https://tarangwave.netlify.app` (or your actual
 Netlify domain). Production builds use the deployed API by default and ignore a
 localhost API URL, so a local development setting cannot direct deployed
 visitors to their own computer.
+Verify the backend before testing registration or login:
+`https://tarang-api.onrender.com/api/health` must return HTTP 200 with
+`{"success":true,...}`. A 404 from a Python/Gunicorn service means the Render
+service or custom domain is not pointing at this Node API; changing the
+frontend API URL or database settings cannot repair that service mapping.
+
+Existing CRUD endpoints are documented in
+[`backend/API_GUIDE.md`](./backend/API_GUIDE.md).
 
 ## What's included
 

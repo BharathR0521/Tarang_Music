@@ -2,6 +2,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
+import mongoose from "mongoose";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import connectDB from "./config/db.js";
@@ -12,7 +13,6 @@ import playlistRoutes from "./routes/playlistRoutes.js";
 import commentRoutes from "./routes/commentRoutes.js";
 
 dotenv.config({ path: path.join(path.dirname(fileURLToPath(import.meta.url)), ".env") });
-connectDB();
 
 const app = express();
 app.set("trust proxy", 1);
@@ -30,7 +30,10 @@ app.use(cors({
 
     callback(new Error("Origin not allowed by CORS"));
   },
+  methods: ["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
+  optionsSuccessStatus: 204,
 }));
 app.use(express.json()); // lets us read JSON sent in requests
 app.use("/uploads", express.static("uploads"));
@@ -43,7 +46,11 @@ app.get("/", (req, res) => {
 
 // Health-check endpoint for uptime monitors / deployment verification.
 app.get("/api/health", (req, res) => {
-  res.json({ success: true, message: "Backend API is running" });
+  const databaseConnected = mongoose.connection.readyState === 1;
+  res.status(databaseConnected ? 200 : 503).json({
+    success: databaseConnected,
+    message: databaseConnected ? "Backend API and database are ready" : "Database is not connected",
+  });
 });
 
 app.use("/api/auth", authRoutes);
@@ -58,4 +65,17 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, "0.0.0.0", () => console.log(`Tarang backend running on http://0.0.0.0:${PORT}`));
+
+const startServer = async () => {
+  if (process.env.NODE_ENV === "production" && !process.env.JWT_SECRET) {
+    throw new Error("Set JWT_SECRET before starting the API in production.");
+  }
+
+  await connectDB();
+  app.listen(PORT, "0.0.0.0", () => console.log(`Tarang backend running on http://0.0.0.0:${PORT}`));
+};
+
+startServer().catch((error) => {
+  console.error(`Tarang backend failed to start: ${error.message}`);
+  process.exitCode = 1;
+});

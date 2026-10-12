@@ -10,8 +10,9 @@ what to ask for, what you need to bring (if anything), and what comes back.
 
 | What you want to do        | Ask for (Method + URL)         | Send                          | You get back                     |
 |-----------------------------|----------------------------------|--------------------------------|------------------------------------|
-| Create an account            | `POST /api/auth/register`        | name, email, password          | your new profile + a login token   |
-| Log in                       | `POST /api/auth/login`           | email, password                | your profile + a login token       |
+| Check API and database readiness | `GET /api/health`             | nothing                        | readiness status                  |
+| Create an account            | `POST /api/auth/register`        | name, username, email, password; favoriteGenres optional | your new profile + a login token |
+| Log in                       | `POST /api/auth/login`           | username or email, password    | your profile + a login token       |
 | See my own profile          | 🔒 `GET /api/auth/me`            | nothing                        | your profile                       |
 
 ## Browsing & searching music
@@ -24,6 +25,10 @@ what to ask for, what you need to bring (if anything), and what comes back.
 | Open one song's page              | `GET /api/songs/:id`               | nothing                | that song's details              |
 | Count a play (when streaming starts) | `PUT /api/songs/:id/play`       | nothing                | updated play count              |
 | Like / unlike a song              | 🔒 `PUT /api/songs/:id/like`       | nothing                | whether it's now liked          |
+| Create a song record               | `POST /api/songs`                  | song metadata           | the created song                |
+| Upload a song and artwork          | `POST /api/songs/upload`            | multipart audio, coverImage, title, artist, genre | the uploaded song |
+| Delete my uploaded song             | 🔒 `DELETE /api/songs/:id`          | nothing                | confirmation                    |
+| Delete selected uploaded songs     | 🔒 `DELETE /api/songs/uploaded/selected` | song IDs          | deletion result                 |
 
 ## Playlists
 
