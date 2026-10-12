@@ -22,6 +22,8 @@ export default function Login() {
     } catch (err) {
       if (!err.response) {
         setError("Can't reach the Tarang server. Make sure the backend is running, then try again.");
+      } else if (err.response.status === 404) {
+        setError("The deployed music API is unavailable. The Tarang backend needs to be redeployed in Render.");
       } else {
         setError(err.response.data?.message || "Could not log in. Please try again.");
       }
