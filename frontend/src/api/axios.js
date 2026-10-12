@@ -2,10 +2,21 @@
 // same address and automatically attaches the login token when we have one.
 import axios from "axios";
 
-const apiBaseUrl = import.meta.env.VITE_API_URL?.replace(/\/$/, "");
+const productionApiBaseUrl = "https://tarang-api.onrender.com/api";
+const configuredApiBaseUrl = import.meta.env.VITE_API_URL?.trim();
+const isLoopbackApiUrl = (value) => {
+  try {
+    return ["localhost", "127.0.0.1", "::1"].includes(new URL(value).hostname.toLowerCase());
+  } catch {
+    return false;
+  }
+};
+const apiBaseUrl = import.meta.env.PROD && (!configuredApiBaseUrl || isLoopbackApiUrl(configuredApiBaseUrl))
+  ? productionApiBaseUrl
+  : configuredApiBaseUrl;
 
 const api = axios.create({
-  baseURL: apiBaseUrl,
+  baseURL: apiBaseUrl?.replace(/\/$/, ""),
 });
 
 api.interceptors.request.use((config) => {

@@ -49,12 +49,13 @@ for Render. Create the service from that blueprint and provide `MONGO_URI`.
 After the API deploys, set this environment variable in Netlify and redeploy:
 
 ```
-VITE_API_URL=https://<your-render-service>.onrender.com/api
+VITE_API_URL=https://tarang-api.onrender.com/api
 ```
 
 Set the backend `CLIENT_URL` to `https://tarangwave.netlify.app` (or your actual
-Netlify domain). Login and registration cannot work from Netlify while the
-frontend still uses `http://localhost:5000/api`.
+Netlify domain). Production builds use the deployed API by default and ignore a
+localhost API URL, so a local development setting cannot direct deployed
+visitors to their own computer.
 
 ## What's included
 
